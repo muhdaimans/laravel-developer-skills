@@ -1,0 +1,14 @@
+{
+  "name": "laravel-developer-skills",
+  "description": "Version-aware Claude Code skills for Laravel development.",
+  "owner": {
+    "name": "laravel-developer-skills contributors"
+  },
+  "plugins": [
+    {
+      "name": "laravel-developer-skills",
+      "source": "./",
+      "description": "Thirteen skills covering Laravel architecture, Eloquent, APIs, auth, databases, queues, testing, debugging, review, security, deployment and documentation."
+    }
+  ]
+}

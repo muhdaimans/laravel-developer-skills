@@ -1,0 +1,25 @@
+{
+  "name": "laravel-developer-skills",
+  "displayName": "Laravel Developer Skills",
+  "version": "1.0.0",
+  "description": "Version-aware skills for building, reviewing, securing, debugging, testing and deploying Laravel 10-13 applications on PHP 8.2-8.5.",
+  "author": {
+    "name": "laravel-developer-skills contributors"
+  },
+  "license": "MIT",
+  "keywords": [
+    "laravel",
+    "php",
+    "eloquent",
+    "rest-api",
+    "sanctum",
+    "passport",
+    "horizon",
+    "pest",
+    "phpunit",
+    "docker",
+    "deployment",
+    "code-review",
+    "security"
+  ]
+}
