@@ -30,6 +30,14 @@ Use selectively: pick the sections that match the diff.
 - [ ] Route-model binding is scoped for nested resources
 - [ ] Cache and file paths include the tenant
 
+## House Rules
+
+- [ ] Logic that now exists twice was moved to a service class
+- [ ] Each form `store` and `update` uses a form request, not inline `validate()`
+- [ ] No migration, seeder, command or test setup drops, truncates or resets existing data
+- [ ] Fixed option lists (gender, religion, NRIC type, status) are enums, not new lookup tables
+- [ ] Repeated markup uses a Blade component; no copy-pasted buttons, tables or form fields
+
 ## Validation
 
 - [ ] Only validated data reaches writes

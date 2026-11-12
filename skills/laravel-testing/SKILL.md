@@ -29,7 +29,15 @@ ls tests/Pest.php 2>/dev/null
 php artisan test --compact 2>/dev/null | tail -5
 ```
 
-**Write tests in the project's framework.** Pest if `tests/Pest.php` exists and tests use `it()`/`test()`; otherwise PHPUnit. Do not convert existing tests. Check which `DB_CONNECTION` `phpunit.xml` sets, and read a neighbouring test for setup style. See [version-matrix.md](references/version-matrix.md) for version pairings.
+**Write tests in the project's framework.** Pest if `tests/Pest.php` exists and tests use `it()`/`test()`; otherwise PHPUnit. Do not convert existing tests. Read a neighbouring test for setup style.
+
+**Check the test database before running anything.** `RefreshDatabase`, `DatabaseMigrations` and `DatabaseTruncation` wipe the connection the tests use:
+
+```bash
+grep -E 'DB_(CONNECTION|DATABASE)' .env phpunit.xml .env.testing 2>/dev/null
+```
+
+Run the suite only if `phpunit.xml` or `.env.testing` has an active, uncommented `DB_DATABASE` that differs from `.env`, such as `:memory:` or `app_testing`. If not, stop and tell the user: running the tests would clear their development data. See [version-matrix.md](references/version-matrix.md) for version pairings.
 
 ## Workflow
 
@@ -171,6 +179,7 @@ Which boundary to fake:
 
 | Mistake | Why it bites | Fix |
 | --- | --- | --- |
+| Running tests on the `.env` database | `RefreshDatabase` runs `migrate:fresh` on it | Separate test database, checked first |
 | Testing only the happy path | Auth and validation bugs ship | Cover the failure matrix |
 | `get()` for a JSON API | Exceptions render as HTML or redirects | `getJson()` |
 | `withoutExceptionHandling()` left in | Masks real status codes | Debug only |
@@ -201,6 +210,7 @@ Coverage needs Xdebug or PCOV. `--mutate` is Pest 3+, and is run on chosen code,
 - [ ] Full suite passes, and still passes with `--parallel`
 - [ ] Failure paths are covered
 - [ ] No stray HTTP or real services
+- [ ] The suite ran on the test database, never the development one
 
 ## Additional Resources
 

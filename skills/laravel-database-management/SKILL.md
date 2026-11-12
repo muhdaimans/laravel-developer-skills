@@ -46,9 +46,10 @@ Also determine the engine and version (`db:show`), row counts for tables you wil
 3. **Generate** with `php artisan make:migration`, one concern per migration.
 4. **Write `up()` and `down()`.** If `down()` can't restore data, say so in a comment.
 5. **Review SQL:** `php artisan migrate --pretend`.
-6. **Test both directions locally:** `migrate`, `migrate:rollback --step=1`, `migrate`.
-7. **Update factory and seeders** to match.
+6. **Test both directions locally:** `migrate`, `migrate:rollback --step=1`, `migrate`. Roll back only the migration you just wrote, and only while what it drops holds no data.
+7. **Update factory and seeders** to match. Seeders use `updateOrCreate()` so a second run changes nothing.
 8. **Never edit a migration that has run in a shared environment.** Add a new one.
+9. **Never clear the database.** `migrate:fresh`, `migrate:refresh`, `migrate:reset`, `db:wipe`, `truncate()` and a `migrate:rollback` without `--step=1` are not run on any environment, local included, unless the user asks for that exact command. The full rule is House Rule 3 in `laravel-best-practices`.
 
 ## Core Pattern: A Robust Table
 
@@ -97,6 +98,8 @@ Decisions worth making deliberately:
 | --- | --- |
 | Money | Integer minor units, or `decimal(19, 4)`. Never `float` |
 | Status | `string` + PHP enum, avoids an `ALTER` per new state |
+| Fixed option list (gender, religion, NRIC type) | `string` + PHP enum. No lookup table or foreign key. See `laravel-best-practices` |
+| Options that users edit at runtime | Lookup table with a foreign key |
 | Public identifier | `ulid` alongside `id`, time-ordered so it indexes well |
 | Timestamps | Store UTC |
 | Flexible attributes | `jsonb` on PostgreSQL, `json` on MySQL. Promote queried keys to real columns |
@@ -158,7 +161,9 @@ This requires a unique index on those columns. `firstOrCreate()` alone can raise
 | --- | --- | --- |
 | Editing a run migration | Environments diverge silently | New migration |
 | Using models in migrations | Model changes break old migrations | `DB::table()`, or inline logic |
-| `migrate:fresh` near production | Drops everything | Refuse. Local only |
+| `migrate:fresh`, `migrate:refresh` or `db:wipe` to fix a migration | Drops everything, on local too | New migration. Ask before any reset |
+| Lookup table for a fixed list | Joins, seeders and keys for a few constants | PHP enum on a `string` column |
+| Seeder that truncates first | Wipes rows users created | `updateOrCreate()` |
 | Adding `NOT NULL` without default to a populated table | Fails or locks | Add nullable, backfill, then constrain |
 | Backfill in one statement on a huge table | Long lock, replica lag | Batched job |
 | No index on Postgres foreign keys | Slow joins and cascades | Add explicitly; MySQL does it for you |
@@ -179,11 +184,14 @@ php artisan db:table invoices
 php artisan test
 ```
 
+Run `php artisan test` only when the tests use a separate database; `laravel-testing` has the check.
+
 - [ ] `down()` works, or irreversibility is documented
 - [ ] SQL reviewed for the production engine
 - [ ] Indexes exist for each new foreign key and query
 - [ ] Factory creates valid rows: `Invoice::factory()->create()`
 - [ ] Backup confirmed before a destructive change
+- [ ] No table was dropped, truncated or rebuilt to get here
 - [ ] Rollback plan stated for production
 
 ## Additional Resources

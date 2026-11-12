@@ -41,7 +41,7 @@ Read `composer.json` for the `autoload` map and any module packages. Note whethe
 
    | Pain | Fix |
    | --- | --- |
-   | Same logic in controller and command | Extract one Action |
+   | Same logic in controller and command | Extract one service method, or an Action if the project uses them |
    | Controller over about 150 lines | Split resources, then extract Actions |
    | Same query conditions repeated | Scope or custom Eloquent builder |
    | Model over about 500 lines | Move queries to a builder, behaviour to Actions, keep relations and casts |
@@ -59,6 +59,8 @@ Read `composer.json` for the `autoload` map and any module packages. Note whethe
 ## Core Pattern: The Action
 
 One use case, one public method, callable from anywhere.
+
+New projects, and projects with no `app/Actions` yet, default to a service class in `app/Services` for repeated logic (House Rule 1 in `laravel-best-practices`). The same rules apply to it: no `Request` inside, a transaction boundary it owns, methods grouped by one domain. Use Actions where the project already has them.
 
 ```php
 <?php
@@ -158,6 +160,7 @@ An event with exactly one synchronous listener is an indirect function call: rep
 | --- | --- | --- |
 | Repository per model | Re-exports Eloquent, leaks builders anyway | Scopes and custom builders |
 | Interface for every class | Double the files, one implementation | Interfaces at external boundaries |
+| Lookup table and model for a fixed option list | A layer of joins for constants | Enum, see `laravel-best-practices` |
 | `Helper` or `Manager` catch-all classes | Becomes the next god object | Name by use case |
 | Starting with DDD on a CRUD app | Ceremony without a domain to model | Grow into it |
 | Big-bang restructure | Long-lived branch, conflicts | Strangler moves, one slice at a time |
